@@ -1,11 +1,23 @@
 body {
   font-family: 'Courier New', monospace;
   font-size: 14px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center; /* 横方向の中央揃え */
+  align-items: flex-start; /* 上部揃え */
+  min-height: 100vh; /* 画面全体の高さ */
+  background-color: #f8f8f8; /* 背景色を薄いグレーに */
 }
 
 table {
   border-collapse: collapse;
   border: 2px solid #eee;
+  margin-top: 20px; /* 上部の余白 */
+  background-color: white; /* テーブルの背景を白に */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を追加して浮いているような見た目に */
+  width: auto; /* テーブルの幅を自動調整 */
+  max-width: 400px; /* 最大幅を調整 */
 }
 
 thead,
@@ -15,7 +27,7 @@ tfoot {
 
 th,
 td {
-  padding: 8px;
+  padding: 16px; /* セルの内側余白を広くして、正方形に近づける */
   text-align: center;
 }
 
@@ -37,6 +49,8 @@ td.disabled {
 
 td.today {
   font-weight: bold;
+  background-color: #ffeb3b; /* 今日の日付に背景色を追加 */
+  border-radius: 50%; /* 円形にする */
 }
 
 #prev,
@@ -44,4 +58,10 @@ td.today {
 #today {
   cursor: pointer;
   user-select: none;
+  color: #555;
+}
+
+#title {
+  font-size: 16px;
+  font-weight: bold;
 }
