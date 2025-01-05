@@ -7,52 +7,80 @@ console.clear();
   let year = today.getFullYear();
   let month = today.getMonth();
 
+  // 汎用関数: 日付オブジェクトを作成
+  function createDate(year, month, day) {
+    return new Date(year, month, day);
+  }
+
+  // 汎用関数: カレンダーの日付データを作成
+  function createDateObject(date, isToday, isDisabled) {
+    return { date, isToday, isDisabled };
+  }
+
+  // 汎用関数: 日付を週ごとに分割
+  function splitIntoWeeks(dates) {
+    const weeks = [];
+    while (dates.length) {
+      weeks.push(dates.splice(0, 7));
+    }
+    return weeks;
+  }
+
+  // 汎用関数: 年月タイトルをフォーマット
+  function formatTitle(year, month) {
+    return `${year}/${String(month + 1).padStart(2, '0')}`;
+  }
+
+  // 前月・次月の移動ロジックを汎用化
+  function changeMonth(offset) {
+    month += offset;
+    if (month < 0) {
+      year--;
+      month = 11;
+    } else if (month > 11) {
+      year++;
+      month = 0;
+    }
+    createCalendar();
+  }
+
   function getCalendarHead() {
     const dates = [];
-    const d = new Date(year, month, 0).getDate();
-    const n = new Date(year, month, 1).getDay();
+    const lastDayOfPrevMonth = createDate(year, month, 0).getDate();
+    const firstDayOfThisMonth = createDate(year, month, 1).getDay();
 
-    for (let i = 0; i < n; i++) {
-      // 30 - 0, 30 - 1, 30 - 2, ...
-      dates.unshift({
-        date: d - i,
-        isToday: false,
-        isDisabled: true,
-      });
+    for (let i = 0; i < firstDayOfThisMonth; i++) {
+      dates.unshift(createDateObject(lastDayOfPrevMonth - i, false, true));
     }
 
     return dates;
   }
 
   function getCalendarBody() {
-    const dates = []; // date: 日付, day: 曜日
-    const lastDate = new Date(year, month + 1, 0).getDate();
+    const dates = [];
+    const lastDateOfThisMonth = createDate(year, month + 1, 0).getDate();
 
-    for (let i = 1; i <= lastDate; i++) {
-      dates.push({
-        date: i,
-        isToday: false,
-        isDisabled: false,
-      });
+    for (let i = 1; i <= lastDateOfThisMonth; i++) {
+      dates.push(
+        createDateObject(
+          i,
+          year === today.getFullYear() &&
+            month === today.getMonth() &&
+            i === today.getDate(),
+          false
+        )
+      );
     }
-
-    if (year === today.getFullYear() && month === today.getMonth())
-      dates[today.getDate() - 1].isToday = true;
 
     return dates;
   }
 
   function getCalendarTail() {
     const dates = [];
-    const lastDay = new Date(year, month + 1, 0).getDay();
+    const lastDayOfThisMonth = createDate(year, month + 1, 0).getDay();
 
-    for (let i = 1; i < 7 - lastDay; i++) {
-      // 1 - 0, 1 - 1, 1 - 2, ...
-      dates.push({
-        date: i,
-        isToday: false,
-        isDisabled: true,
-      });
+    for (let i = 1; i < 7 - lastDayOfThisMonth; i++) {
+      dates.push(createDateObject(i, false, true));
     }
 
     return dates;
@@ -67,8 +95,7 @@ console.clear();
   }
 
   function renderTitle() {
-    const title = `${year}/${String(month + 1).padStart(2, '0')}`;
-    document.getElementById('title').textContent = title;
+    document.getElementById('title').textContent = formatTitle(year, month);
   }
 
   function renderWeeks() {
@@ -77,12 +104,7 @@ console.clear();
       ...getCalendarBody(),
       ...getCalendarTail(),
     ];
-    const weeks = [];
-    const weeksCount = dates.length / 7;
-
-    for (let i = 0; i < weeksCount; i++) {
-      weeks.push(dates.splice(0, 7));
-    }
+    const weeks = splitIntoWeeks(dates);
 
     weeks.forEach((week) => {
       const tr = document.createElement('tr');
@@ -109,30 +131,16 @@ console.clear();
     renderWeeks();
   }
 
-  document.getElementById('prev').addEventListener('click', () => {
-    month--;
-    if (month < 0) {
-      year--;
-      month = 11;
-    }
-
-    createCalendar();
-  });
-
-  document.getElementById('next').addEventListener('click', () => {
-    month++;
-    if (month > 11) {
-      year++;
-      month = 0;
-    }
-
-    createCalendar();
-  });
-
+  // イベントリスナーの登録
+  document
+    .getElementById('prev')
+    .addEventListener('click', () => changeMonth(-1));
+  document
+    .getElementById('next')
+    .addEventListener('click', () => changeMonth(1));
   document.getElementById('today').addEventListener('click', () => {
     year = today.getFullYear();
     month = today.getMonth();
-
     createCalendar();
   });
 
